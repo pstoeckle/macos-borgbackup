@@ -16,7 +16,7 @@ docker run -d -p 212:22 -v /opt/backupstorage:/storage --name borg-server -e BOR
 ```
 brew install borgbackup
 ```
-2. Initialyze repository, specify repo password and remember it:
+2. Initialize repository, specify repo password and remember it:
 ```
 borg init -e repokey ssh://borg@backupserver.com:212/storage/mymac
 ```

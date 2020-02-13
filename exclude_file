@@ -1,0 +1,27 @@
+# Folders
+*/__pycache__
+*/_minted-main
+*/.eggs
+*/.metadata
+*/.PowerFolder
+*/.svn
+*/.vagrant
+*/node_modules
+*/venv/
+
+# File patterns
+*/*.aux
+*/*.bbl
+*/*.blg
+*/*.class
+*/*.fdb_latexmk
+*/*.fls
+*/*.out
+*/*.pyc
+*/*.pyg
+*/*.synctex.gz
+*/~$*
+
+# Files
+*/__latexindent_temp.tex
+*/.DS_Store

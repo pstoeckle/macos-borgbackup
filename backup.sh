@@ -1,21 +1,20 @@
 #!/bin/bash
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-REPO_URL=ssh://borg@backupserver.com:212/storage/mymac
-REPO_PASSWORD=CieKo5iePo
+REPO_URL=''
+REPO_PASSWORD=''
+SSH_KEY='path/to/ssh/key'
+EXCLUDE_FILE='path/to/exclude/file'
 
 function backup {
-	borg create --compression lz4 \
-		${REPO_URL}::'{hostname}-{now:%Y-%m-%d}' \
-		~ \
-		/etc \
-		/Applications \
-		--exclude '~/Downloads' \
-		--exclude '*.pyc' \
-		&& touch ~/.lastbackup \
-		&& osascript -e "display notification \"Backup completed\" with title \"Borgbackup\"" \
-		|| ([ $1 -ge 604800 ] \
-		&& osascript -e "display notification \"ERROR: Backup was failed during week\" with title \"Borgbackup\"")
+	eval `ssh-agent -s`
+	ssh-add ${SSH_KEY}
+	borg create \
+		--exclude-from ${EXCLUDE_FILE} \
+		${REPO_URL}::'{hostname}-{now:%Y_%m_%d_%H_%M}' \
+		~/Documents \
+		~/.ssh \
+		&& osascript -e "display notification \"Backup completed\" with title \"Borgbackup\""
 }
 
 function remove_old_backup {
@@ -24,19 +23,8 @@ function remove_old_backup {
 }
 
 function check_last_backup {
-	if [ ! -f ~/.lastbackup ]; then
-		touch ~/.lastbackup
-		backup
-	else 
-		LASTBACKUP=`date -r ~/.lastbackup +%s`
-		CURTIME=`date +%s`
-		DIFF=$(($CURTIME - $LASTBACKUP))
-		echo $DIFF
-		if [[ $DIFF -ge 86400 ]]; then
-			backup $DIFF
-			remove_old_backup
-		fi
-	fi
+	backup $DIFF
+	remove_old_backup
 }
 
 export BORG_PASSPHRASE=${REPO_PASSWORD}
