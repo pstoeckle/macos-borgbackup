@@ -14,7 +14,7 @@ docker run -d -p 212:22 -v /opt/backupstorage:/storage --name borg-server -e BOR
 
 1. Install borgbackup:
 ```
-brew install borgbackup
+brew cask install borgbackup
 ```
 2. Initialize repository, specify repo password and remember it:
 ```
