@@ -7,8 +7,6 @@ SSH_KEY='path/to/ssh/key'
 EXCLUDE_FILE='path/to/exclude/file'
 
 function backup {
-	eval `ssh-agent -s`
-	ssh-add ${SSH_KEY}
 	borg create \
 		--exclude-from ${EXCLUDE_FILE} \
 		${REPO_URL}::'{hostname}-{now:%Y_%m_%d_%H_%M}' \
@@ -23,8 +21,17 @@ function remove_old_backup {
 }
 
 function check_last_backup {
-	backup $DIFF
-	remove_old_backup
+	eval `ssh-agent -s`
+	server_available=true
+	ssh-add ${SSH_KEY}
+	ssh -o ConnectTimeout=10 borg@borgbackup.in.tum.de 'borg -V' > /dev/null || server_available=false
+	if [ "$server_available" = true ];
+	then
+		backup $DIFF
+		remove_old_backup
+	else
+		osascript -e "display notification \"Backup failed!\" with title \"Borgbackup\""
+	fi
 }
 
 export BORG_PASSPHRASE=${REPO_PASSWORD}
